@@ -1,36 +1,60 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Stock</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Braga</title>
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>App Braga</h2>
+      <p>Gestão de Toners e PCs</p>
+    </div>
+    <a href="index.html">Dashboard</a>
+    <a href="add-toner.html">Adicionar Toner</a>
+    <a href="stock.html" class="active">Stock</a>
+    <a href="historico.html">Histórico</a>
+    <a href="computadores.html">Computadores</a>
+    <a href="config.html">Configurações</a>
+  </aside>
 
-<aside class="sidebar">
-  <h2>Impressoras Braga</h2>
-  <a href="index.html">Dashboard</a>
-  <a href="stock.html">Stock</a>
-  <a href="historico.html">Histórico</a>
-  <a href="computadores.html">Computadores</a>
-  <a href="add-toner.html">Adicionar Toner</a>
-  <a href="config.html">Configurações</a>
-</aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Stock</h1>
+        <p class="subtitle">Toners disponíveis</p>
+      </div>
+    </div>
 
-<main class="main">
-<h1>Stock</h1>
+    <div class="panel">
+      <input id="search" type="text" placeholder="Pesquisar localização..." oninput="filtrar()">
+      <div id="listaStock" class="cards-list"></div>
+    </div>
 
-<table>
-<thead>
-<tr>
-<th>ID</th><th>Modelo</th><th>Local</th><th>Qtd</th><th>Data</th>
-</tr>
-</thead>
-<tbody id="stockTable"></tbody>
-</table>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Modelo</th>
+            <th>Local</th>
+            <th>Qtd</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody id="stockTable"></tbody>
+      </table>
+    </div>
+  </main>
 
-</main>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
