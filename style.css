@@ -15,6 +15,7 @@ body {
   height: 100vh;
   padding: 20px;
   box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+  position: fixed;
 }
 .sidebar .logo img {
   width: 90px;
@@ -23,7 +24,7 @@ body {
 }
 .sidebar h2 {
   font-size: 22px;
-  margin: 0 0 20px;
+  margin-bottom: 20px;
 }
 .sidebar nav ul {
   list-style: none;
@@ -43,9 +44,9 @@ body {
 
 /* CONTEÚDO PRINCIPAL */
 .main-content {
-  flex: 1;
+  margin-left: 260px;
   padding: 30px;
-  overflow-y: auto;
+  flex: 1;
 }
 header h1 {
   font-size: 28px;
@@ -65,7 +66,7 @@ header h1 {
   margin-bottom: 10px;
 }
 
-/* TABELAS (se existirem) */
+/* TABELAS */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -74,4 +75,19 @@ table th, table td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
+}
+
+/* MODO ESCURO */
+body.dark-mode {
+  background: #121212;
+  color: #eee;
+}
+body.dark-mode .sidebar {
+  background: #1b1b1b;
+}
+body.dark-mode .section {
+  background: #1e1e1e;
+}
+body.dark-mode table th, body.dark-mode table td {
+  border: 1px solid #444;
 }
