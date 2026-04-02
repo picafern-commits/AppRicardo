@@ -1,93 +1,246 @@
-// DADOS DE EXEMPLO
-let stockData = [
-  {id: 1, modelo: "HP 12A", local: "Sala 1", quantidade: 5, data: "01/04/2026"},
-  {id: 2, modelo: "Canon 303", local: "Sala 2", quantidade: 3, data: "02/04/2026"}
+const firebaseConfig = {
+  apiKey: "AIzaSyCSgw4rhBLW5mq4QClulubf6e0hf5lDJbo",
+  authDomain: "toner-manager-756c4.firebaseapp.com",
+  projectId: "toner-manager-756c4"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let stockGlobal=[];
+
+
+// NAV
+function mudarPagina(p){
+  ["impressoras","computadores","config"].forEach(id=>{
+    document.getElementById(id).style.display="none";
+  });
+  document.getElementById(p).style.display="block";
+
+  if(p==="computadores") carregarChecklist();
+}
+
+
+// ID
+async function gerarID(){
+  const ref=db.collection("config").doc("contador");
+
+  return db.runTransaction(async t=>{
+    let doc=await t.get(ref);
+    let n=doc.exists?doc.data().valor+1:1;
+    t.set(ref,{valor:n});
+    return "TON-"+String(n).padStart(4,"0");
+  });
+}
+
+
+// ADD TONER
+async function disponivel(){
+
+  let eq=equipamento.value;
+  let loc=localizacao.value;
+  let cor=document.getElementById("cor").value;
+  let data=document.getElementById("data").value;
+
+  if(!eq||!cor){
+    alert("Preenche tudo");
+    return;
+  }
+
+  let id=await gerarID();
+
+  await db.collection("stock").add({
+    idInterno:id,
+    equipamento:eq,
+    localizacao:loc||"Sem Localização",
+    cor:cor,
+    data:data||"Sem Data",
+    created:new Date()
+  });
+}
+
+
+// STOCK
+db.collection("stock").orderBy("created","desc").onSnapshot(snap=>{
+  stockGlobal=[];
+  countStock.innerText=snap.size;
+
+  let lista=listaStock;
+  lista.innerHTML="";
+
+  snap.forEach(doc=>{
+    let t=doc.data();
+    t.idDoc=doc.id;
+    stockGlobal.push(t);
+
+    lista.innerHTML+=`
+      <div class="card">
+        <input type="checkbox" onchange="usar('${doc.id}')">
+        <b>${t.idInterno}</b><br>
+        ${t.equipamento} - ${t.cor}<br>
+        ${t.localizacao}
+      </div>
+    `;
+  });
+});
+
+
+// HISTÓRICO TONER
+db.collection("historico").onSnapshot(snap=>{
+  countUsados.innerText=snap.size;
+
+  let lista=listaHistorico;
+  lista.innerHTML="";
+
+  snap.forEach(doc=>{
+    let t=doc.data();
+
+    lista.innerHTML+=`
+      <div class="card">
+        <b>${t.idInterno}</b><br>
+        ${t.equipamento}
+        <button class="delete" onclick="apagar('${doc.id}')">❌</button>
+      </div>
+    `;
+  });
+});
+
+
+// USAR TONER
+async function usar(id){
+  if(!confirm("Marcar como usado?")) return;
+
+  let ref=db.collection("stock").doc(id);
+  let snap=await ref.get();
+
+  await db.collection("historico").add(snap.data());
+  await ref.delete();
+}
+
+
+// APAGAR TONER
+async function apagar(id){
+  await db.collection("historico").doc(id).delete();
+}
+
+
+// FILTRO
+function filtrar(){
+  let txt=search.value.toLowerCase();
+
+  let lista=listaStock;
+  lista.innerHTML="";
+
+  stockGlobal.filter(t=>
+    (t.localizacao||"").toLowerCase().includes(txt)
+  ).forEach(t=>{
+    lista.innerHTML+=`
+      <div class="card">
+        <b>${t.idInterno}</b><br>
+        ${t.equipamento} - ${t.cor}<br>
+        ${t.localizacao}
+      </div>
+    `;
+  });
+}
+
+
+// CHECKLIST
+const passos=[
+"TEAMVIEWER HOST","TEAMS","DNS",
+"NOME DO SISTEMA","Atribuir Dominio",
+"Desinstalar MCFee","Instalar Sophos",
+"MICROSOFT 365","Instalar Impressora",
+"Alterar Energia","Apagar User","Criar novo user"
 ];
 
-let historicoData = [
-  {id: 1, modelo: "HP 12A", local: "Sala 1", status: "Disponível", data: "01/04/2026"},
-  {id: 2, modelo: "Canon 303", local: "Sala 2", status: "Usado", data: "02/04/2026"}
-];
+function carregarChecklist(){
+  let el=document.getElementById("checklist");
+  let html="";
+  passos.forEach((p,i)=>{
+    html+=`
+      <label class="checkItem">
+        <input type="checkbox" id="p${i}">
+        <span>${p}</span>
+      </label>
+    `;
+  });
+  el.innerHTML=html;
+}
 
-let computadoresData = [
-  {id: 1, nome: "PC Sala 1"},
-  {id: 2, nome: "PC Sala 2"},
-  {id: 3, nome: "PC Sala 3"}
-];
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Sidebar ativo
-  const menuLinks = document.querySelectorAll(".sidebar nav ul li a");
-  menuLinks.forEach(link => {
-    if (link.href === window.location.href) link.classList.add("active");
-    link.addEventListener("click", () => {
-      menuLinks.forEach(l => l.classList.remove("active"));
-      link.classList.add("active");
+// GUARDAR PC
+async function guardarPC(){
+
+  let nome=nomePC.value;
+  let data=document.getElementById("dataPC").value;
+
+  if(!nome){ alert("Nome obrigatório"); return; }
+  if(!data) data="Sem Data";
+
+  let dados=[];
+  passos.forEach((p,i)=>{
+    dados.push({
+      passo:p,
+      feito:document.getElementById("p"+i).checked
     });
   });
 
-  // Dashboard
-  const dashboardInfo = document.getElementById("dashboardInfo");
-  if (dashboardInfo) {
-    const total = stockData.reduce((sum, s) => sum + s.quantidade, 0);
-    const disponiveis = stockData.filter(s => s.quantidade > 0).reduce((sum, s) => sum + s.quantidade, 0);
-    const usados = total - disponiveis;
-    dashboardInfo.innerHTML = `
-      <div class="dashboard-card"><h3>Total Stock</h3><p>${total} Toners</p></div>
-      <div class="dashboard-card"><h3>Disponíveis</h3><p>${disponiveis} Toners</p></div>
-      <div class="dashboard-card"><h3>Usados</h3><p>${usados} Toners</p></div>
+  await db.collection("pcs").add({
+    nome:nome,
+    data:data,
+    passos:dados
+  });
+
+  nomePC.value="";
+  dataPC.value="";
+  carregarChecklist();
+}
+
+
+// HISTÓRICO PCs
+db.collection("pcs").onSnapshot(snap=>{
+  let lista=listaPC;
+  lista.innerHTML="";
+
+  snap.forEach(doc=>{
+    let d=doc.data();
+
+    let html="";
+    d.passos.forEach(p=>{
+      html+=`<div>${p.feito?"✔":"❌"} ${p.passo}</div>`;
+    });
+
+    lista.innerHTML+=`
+      <div class="card">
+        <b>${d.nome}</b><br>
+        📅 ${d.data}<br>
+        ${html}
+        <button class="delete" onclick="apagarPC('${doc.id}')">❌</button>
+      </div>
     `;
-  }
-
-  // Preencher tabelas
-  function preencherTabela(idTabela, dados, tipo) {
-    const tbody = document.querySelector(`#${idTabela} tbody`);
-    if (!tbody) return;
-    tbody.innerHTML = dados.map(item => `
-      <tr>
-        <td>${item.id}</td>
-        <td>${item.modelo || item.nome}</td>
-        <td>${item.local || ""}</td>
-        <td>${tipo === 'stock' ? item.quantidade : item.status || ""}</td>
-        <td>${item.data || ""}</td>
-      </tr>
-    `).join('');
-  }
-  preencherTabela("stockInfo", stockData, "stock");
-  preencherTabela("historicoInfo", historicoData, "historico");
-
-  // Lista de computadores
-  const computadoresContainer = document.getElementById("computadoresContainer");
-  if (computadoresContainer) {
-    computadoresContainer.innerHTML = computadoresData.map(pc => `
-      <label><input type="checkbox" value="${pc.nome}"> ${pc.nome}</label>
-    `).join('');
-  }
-
-  // Adicionar toner
-  const addTonerForm = document.getElementById("addTonerForm");
-  if (addTonerForm) {
-    addTonerForm.addEventListener("submit", e => {
-      e.preventDefault();
-      const modelo = addTonerForm.querySelector("#modelo").value;
-      const local = addTonerForm.querySelector("#local").value;
-      const quantidade = parseInt(addTonerForm.querySelector("#quantidade").value);
-      const data = new Date().toLocaleDateString("pt-PT");
-
-      const novoId = stockData.length ? stockData[stockData.length-1].id +1 : 1;
-      stockData.push({id: novoId, modelo, local, quantidade, data});
-      historicoData.push({id: novoId, modelo, local, status:"Disponível", data});
-
-      alert("Toner adicionado com sucesso!");
-      addTonerForm.reset();
-    });
-  }
-
-  // Modo escuro
-  const darkModeToggle = document.getElementById("darkModeToggle");
-  if (darkModeToggle) {
-    darkModeToggle.addEventListener("change", () => {
-      document.body.classList.toggle("dark-mode", darkModeToggle.checked);
-    });
-  }
+  });
 });
+
+
+// APAGAR PC
+async function apagarPC(id){
+  if(!confirm("Apagar registo?")) return;
+  await db.collection("pcs").doc(id).delete();
+}
+
+
+// DARK MODE
+window.onload=()=>{
+  let sw=document.getElementById("darkSwitch");
+
+  if(localStorage.getItem("modo")==="dark"){
+    document.body.classList.add("dark");
+    sw.checked=true;
+  }
+
+  sw.addEventListener("change",()=>{
+    document.body.classList.toggle("dark");
+    localStorage.setItem("modo",sw.checked?"dark":"light");
+  });
+};

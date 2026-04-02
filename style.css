@@ -1,152 +1,102 @@
-/* GERAL */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  background: #f5f5f5;
-  color: #333;
+*{
+  box-sizing:border-box;
 }
 
-/* SIDEBAR */
-.sidebar {
-  width: 260px;
-  background: #24292f;
-  color: white;
-  height: 100vh;
-  padding: 20px;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-  position: fixed;
-}
-.sidebar .logo img {
-  width: 90px;
-  display: block;
-  margin-bottom: 10px;
-}
-.sidebar h2 {
-  font-size: 22px;
-  margin-bottom: 20px;
-}
-.sidebar nav ul {
-  list-style: none;
-  padding: 0;
-}
-.sidebar nav ul li {
-  margin: 15px 0;
-}
-.sidebar nav ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 18px;
-  display: block;
-  padding: 5px;
-  border-radius: 4px;
-}
-.sidebar nav ul li a.active,
-.sidebar nav ul li a:hover {
-  background: #0366d6;
+html, body{
+  margin:0;
+  padding:0;
+  font-family:-apple-system;
+  width:100%;
+  height:100%;
+  overflow-x:hidden;
+  background:#f2f2f7;
 }
 
-/* CONTEÚDO PRINCIPAL */
-.main-content {
-  margin-left: 260px;
-  padding: 30px;
-  flex: 1;
-}
-header h1 {
-  font-size: 28px;
-  margin-bottom: 15px;
+/* DARK MODE FULL SCREEN */
+.dark, .dark body{
+  background:#1c1c1e !important;
+  color:white;
 }
 
-/* SECTIONS */
-.section {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 6px;
-  box-shadow: 0 0 5px rgba(0,0,0,0.1);
-}
-.section h2 {
-  font-size: 22px;
-  margin-bottom: 10px;
+/* GARANTE QUE NADA FICA BRANCO */
+.dark .container,
+.dark nav,
+.dark html{
+  background:#1c1c1e !important;
 }
 
-/* DASHBOARD CARDS */
-.dashboard-cards {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.dashboard-card {
-  flex: 1 1 200px;
-  background: #0366d6;
-  color: white;
-  padding: 15px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+/* CONTAINER */
+.container{
+  padding:15px;
+  padding-bottom:120px;
+  width:100%;
 }
 
-/* TABELAS */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
-}
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-  word-wrap: break-word;
-}
-table th {
-  background: #0366d6;
-  color: white;
+/* NAV */
+nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:white;
+  padding:10px;
+  padding-bottom:env(safe-area-inset-bottom);
+  border-top:1px solid #ddd;
 }
 
-/* FORMULÁRIOS */
-form label {
-  display: block;
-  margin: 10px 0 5px;
-}
-form input, form select {
-  padding: 8px;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-form button {
-  padding: 10px 15px;
-  background: #0366d6;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-form button:hover {
-  background: #024ea2;
+.dark nav{
+  background:#2c2c2e;
+  border-top:1px solid #444;
 }
 
-/* CHECKBOXES COMPUTADORES */
-.checkbox-container {
-  display: flex;
-  flex-direction: column;
-}
-.checkbox-container label {
-  margin-bottom: 5px;
+/* INPUTS PERFEITOS PARA IPHONE */
+select,
+input,
+button{
+  width:100%;
+  max-width:100%;
+  padding:14px;
+  margin-bottom:10px;
+  border-radius:12px;
+  border:1px solid #ccc;
+  font-size:16px;
 }
 
-/* MODO ESCURO */
-body.dark-mode {
-  background: #121212;
-  color: #eee;
+/* REMOVE ZOOM IOS */
+input, select {
+  font-size:16px;
 }
-body.dark-mode .sidebar {
-  background: #1b1b1b;
+
+/* DARK INPUT */
+.dark input,
+.dark select{
+  background:#2c2c2e;
+  color:white;
+  border:1px solid #444;
 }
-body.dark-mode .section {
-  background: #1e1e1e;
+
+/* BUTTON */
+button{
+  background:#007AFF;
+  color:white;
+  border:none;
 }
-body.dark-mode table th, body.dark-mode table td {
-  border: 1px solid #444;
+
+/* CARDS */
+.card{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.dark .card{
+  background:#2c2c2e;
+}
+
+/* DELETE */
+.delete{
+  background:red;
+  margin-top:10px;
 }
