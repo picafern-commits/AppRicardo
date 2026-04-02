@@ -1,31 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Config</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Braga</title>
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>App Braga</h2>
+      <p>Gestão de Toners e PCs</p>
+    </div>
+    <a href="index.html">Dashboard</a>
+    <a href="add-toner.html">Adicionar Toner</a>
+    <a href="stock.html">Stock</a>
+    <a href="historico.html">Histórico</a>
+    <a href="computadores.html">Computadores</a>
+    <a href="config.html" class="active">Configurações</a>
+  </aside>
 
-<aside class="sidebar">
-  <h2>Impressoras Braga</h2>
-  <a href="index.html">Dashboard</a>
-  <a href="stock.html">Stock</a>
-  <a href="historico.html">Histórico</a>
-  <a href="computadores.html">Computadores</a>
-  <a href="add-toner.html">Adicionar Toner</a>
-  <a href="config.html">Configurações</a>
-</aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Configurações</h1>
+        <p class="subtitle">Preferências da aplicação</p>
+      </div>
+    </div>
 
-<main class="main">
-<h1>Configurações</h1>
+    <div class="panel">
+      <label class="switch-row">
+        <input type="checkbox" id="darkSwitch">
+        <span>Dark Mode</span>
+      </label>
+    </div>
+  </main>
 
-<label>
-<input type="checkbox" id="dark"> Modo Escuro
-</label>
-
-</main>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
