@@ -95,10 +95,10 @@ async function disponivel() {
     cor.value = "";
     if (data) data.value = "";
 
-    alert("Toner adicionado com sucesso.");
+    console.log("Toner adicionado com sucesso.");
   } catch (error) {
     console.error(error);
-    alert("Erro ao adicionar toner.");
+    console.log("Erro ao adicionar toner.");
   }
 }
 
@@ -313,7 +313,7 @@ async function usar(id) {
     const snap = await ref.get();
 
     if (!snap.exists) {
-      alert("Toner não encontrado.");
+      console.log("Toner não encontrado.");
       return;
     }
 
@@ -327,7 +327,7 @@ async function usar(id) {
     await ref.delete();
   } catch (error) {
     console.error(error);
-    alert("Erro ao mover para histórico.");
+    console.log("Erro ao mover para histórico.");
   }
 }
 
@@ -339,7 +339,7 @@ async function apagar(id) {
     await db.collection("historico").doc(id).delete();
   } catch (error) {
     console.error(error);
-    alert("Erro ao apagar.");
+    console.log("Erro ao apagar.");
   }
 }
 
@@ -442,10 +442,10 @@ async function guardarPC() {
     nomePC.value = "";
     if (dataPC) dataPC.value = "";
     carregarChecklist();
-    alert("Computador guardado com sucesso.");
+    console.log("Computador guardado com sucesso.");
   } catch (error) {
     console.error(error);
-    alert("Erro ao guardar computador.");
+    console.log("Erro ao guardar computador.");
   }
 }
 
