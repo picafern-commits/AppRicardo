@@ -15,7 +15,7 @@
     </div>
     <nav>
       <ul>
-        <li><a href="#dashboard">Dashboard</a></li>
+        <li><a href="#dashboard" class="active">Dashboard</a></li>
         <li><a href="#stock">Stock</a></li>
         <li><a href="#historico">Histórico</a></li>
         <li><a href="#config">Configurações</a></li>
@@ -29,11 +29,15 @@
       <h1>Bem-vindo ao Dashboard</h1>
     </header>
 
+    <!-- DASHBOARD -->
     <section id="dashboard" class="section">
       <h2>Resumo Geral</h2>
-      <div id="dashboardInfo"></div>
+      <div id="dashboardInfo" class="dashboard-cards">
+        <!-- Cards preenchidos pelo JS -->
+      </div>
     </section>
 
+    <!-- STOCK -->
     <section id="stock" class="section">
       <h2>Stock de Toners</h2>
       <table id="stockInfo">
@@ -50,6 +54,7 @@
       </table>
     </section>
 
+    <!-- HISTÓRICO -->
     <section id="historico" class="section">
       <h2>Histórico</h2>
       <table id="historicoInfo">
@@ -66,6 +71,7 @@
       </table>
     </section>
 
+    <!-- CONFIGURAÇÕES -->
     <section id="config" class="section">
       <h2>Configurações</h2>
       <label>
