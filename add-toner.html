@@ -1,34 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Adicionar Toner</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Braga</title>
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>App Braga</h2>
+      <p>Gestão de Toners e PCs</p>
+    </div>
+    <a href="index.html">Dashboard</a>
+    <a href="add-toner.html" class="active">Adicionar Toner</a>
+    <a href="stock.html">Stock</a>
+    <a href="historico.html">Histórico</a>
+    <a href="computadores.html">Computadores</a>
+    <a href="config.html">Configurações</a>
+  </aside>
 
-<aside class="sidebar">
-  <h2>Impressoras Braga</h2>
-  <a href="index.html">Dashboard</a>
-  <a href="stock.html">Stock</a>
-  <a href="historico.html">Histórico</a>
-  <a href="computadores.html">Computadores</a>
-  <a href="add-toner.html">Adicionar Toner</a>
-  <a href="config.html">Configurações</a>
-</aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Adicionar Toner</h1>
+        <p class="subtitle">Regista um novo toner no stock</p>
+      </div>
+    </div>
 
-<main class="main">
-<h1>Adicionar Toner</h1>
+    <div class="panel">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="equipamento">Equipamento</label>
+          <select id="equipamento">
+            <option value="">Equipamento</option>
+            <option>P3155DN</option>
+            <option>TASKalfa_255ci</option>
+            <option>PA5500x</option>
+          </select>
+        </div>
 
-<form id="form">
-<input type="text" id="modelo" placeholder="Modelo" required>
-<input type="text" id="local" placeholder="Local" required>
-<input type="number" id="qtd" placeholder="Quantidade" required>
-<button>Adicionar</button>
-</form>
+        <div class="form-group">
+          <label for="localizacao">Localização</label>
+          <select id="localizacao">
+            <option value="">Localização</option>
+            <option>Sem Localização</option>
+            <option>Ilha 1 - R4B2229805</option>
+            <option>Ilha 2 - WD44336210</option>
+            <option>Ilha 3 - R4B1395508</option>
+            <option>Ilha 4 - R4B1293179</option>
+            <option>Ilha 5 - R4B1293180</option>
+            <option>Balcão 1 - R4B1293183</option>
+            <option>Balcão 2 - R4B1293184</option>
+            <option>Dep.Logistica - R4B2230012</option>
+            <option>Grandes.Encomendas - R4B1293173</option>
+            <option>Devoluções - R4B1395261</option>
+            <option>Escritório - RVP0ZZ03770</option>
+            <option>Ilha1-VRL - R4B1293169</option>
+            <option>Ilha2-VRL - R4B1293174</option>
+            <option>Ilha3-VRL - RVP0Z03715</option>
+          </select>
+        </div>
 
-</main>
+        <div class="form-group">
+          <label for="cor">Cor</label>
+          <select id="cor">
+            <option value="">Cor</option>
+            <option>Preto</option>
+            <option>Amarelo</option>
+            <option>Vermelho</option>
+            <option>Azul</option>
+          </select>
+        </div>
 
-<script src="app.js"></script>
+        <div class="form-group">
+          <label for="data">Data</label>
+          <input type="date" id="data">
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="primary-btn" onclick="disponivel()">Adicionar Toner</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
