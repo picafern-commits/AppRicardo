@@ -1,31 +1,103 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Impressoras Braga</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
+
 <body>
 
-<aside class="sidebar">
+<!-- SIDEBAR -->
+<div class="sidebar">
   <h2>Impressoras Braga</h2>
-  <a href="index.html">Dashboard</a>
-  <a href="stock.html">Stock</a>
-  <a href="historico.html">Histórico</a>
-  <a href="computadores.html">Computadores</a>
-  <a href="add-toner.html">Adicionar Toner</a>
-  <a href="config.html">Configurações</a>
-</aside>
 
-<main class="main">
-  <h1>Dashboard</h1>
+  <button onclick="mudarPagina('impressoras')">🖨️ Toners</button>
+  <button onclick="mudarPagina('computadores')">💻 Computadores</button>
+  <button onclick="mudarPagina('config')">⚙️ Config</button>
+</div>
 
-  <div class="cards">
-    <div class="card" id="total"></div>
-    <div class="card" id="disp"></div>
-    <div class="card" id="usados"></div>
-  </div>
-</main>
+<!-- MAIN -->
+<div class="main">
+
+<!-- TONERS -->
+<div id="impressoras">
+
+<h1>Dashboard Toners</h1>
+
+<div class="cards">
+  <div class="card"><b id="countStock">0</b><br>Stock</div>
+  <div class="card"><b id="countUsados">0</b><br>Usados</div>
+</div>
+
+<div class="form">
+<input id="search" placeholder="Pesquisar localização..." oninput="filtrar()">
+
+<select id="equipamento">
+<option value="">Equipamento</option>
+<option>P3155DN</option>
+<option>TASKalfa_255ci</option>
+<option>PA5500x</option>
+</select>
+
+<select id="localizacao">
+<option value="">Localização</option>
+<option>Sem Localização</option>
+<option>Ilha 1</option>
+<option>Ilha 2</option>
+</select>
+
+<select id="cor">
+<option value="">Cor</option>
+<option>Preto</option>
+<option>Amarelo</option>
+<option>Vermelho</option>
+<option>Azul</option>
+</select>
+
+<input type="date" id="data">
+
+<button onclick="disponivel()">Adicionar Toner</button>
+</div>
+
+<h3>Stock</h3>
+<div id="listaStock"></div>
+
+<h3>Histórico</h3>
+<div id="listaHistorico"></div>
+
+</div>
+
+<!-- COMPUTADORES (IGUAL AO TELEMÓVEL 🔥) -->
+<div id="computadores" style="display:none">
+
+<h1>Instalação Computador</h1>
+
+<input id="nomePC" placeholder="Nome do Computador">
+<input type="date" id="dataPC">
+
+<div id="checklist"></div>
+
+<button onclick="guardarPC()">Guardar</button>
+
+<h3>Histórico</h3>
+<div id="listaPC"></div>
+
+</div>
+
+<!-- CONFIG -->
+<div id="config" style="display:none">
+<h1>Configurações</h1>
+<label><input type="checkbox" id="darkSwitch"> Dark Mode</label>
+</div>
+
+</div>
 
 <script src="app.js"></script>
 </body>
