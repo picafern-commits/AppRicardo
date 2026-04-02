@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Impressoras Braga</title>
+  <title>Impressoras Braga - Desktop Web</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- LATERAL -->
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="logo">
-      <img src="assets/icon.jpg" alt="Logo" />
+      <img src="assets/logo.png" alt="Logo">
       <h2>Impressoras Braga</h2>
     </div>
     <nav>
@@ -26,29 +26,52 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="main-content">
     <header>
-      <h1>Bem‑vindo ao Dashboard</h1>
+      <h1>Bem-vindo ao Dashboard</h1>
     </header>
 
     <section id="dashboard" class="section">
       <h2>Resumo Geral</h2>
-      <div id="dashboardInfo">
-        <!-- Conteúdo da tua app original -->
-      </div>
+      <div id="dashboardInfo"></div>
     </section>
 
     <section id="stock" class="section">
       <h2>Stock de Toners</h2>
-      <div id="stockInfo"></div>
+      <table id="stockInfo">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Modelo</th>
+            <th>Local</th>
+            <th>Quantidade</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
 
     <section id="historico" class="section">
       <h2>Histórico</h2>
-      <div id="historicoInfo"></div>
+      <table id="historicoInfo">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Modelo</th>
+            <th>Local</th>
+            <th>Status</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
     </section>
 
     <section id="config" class="section">
       <h2>Configurações</h2>
-      <div id="configInfo"></div>
+      <label>
+        Modo Escuro:
+        <input type="checkbox" id="darkModeToggle">
+      </label>
     </section>
   </main>
 
