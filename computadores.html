@@ -1,29 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-<meta charset="UTF-8">
-<title>Computadores</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Braga</title>
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>App Braga</h2>
+      <p>Gestão de Toners e PCs</p>
+    </div>
+    <a href="index.html">Dashboard</a>
+    <a href="add-toner.html">Adicionar Toner</a>
+    <a href="stock.html">Stock</a>
+    <a href="historico.html">Histórico</a>
+    <a href="computadores.html" class="active">Computadores</a>
+    <a href="config.html">Configurações</a>
+  </aside>
 
-<aside class="sidebar">
-  <h2>Impressoras Braga</h2>
-  <a href="index.html">Dashboard</a>
-  <a href="stock.html">Stock</a>
-  <a href="historico.html">Histórico</a>
-  <a href="computadores.html">Computadores</a>
-  <a href="add-toner.html">Adicionar Toner</a>
-  <a href="config.html">Configurações</a>
-</aside>
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>Computadores</h1>
+        <p class="subtitle">Checklist de instalação</p>
+      </div>
+    </div>
 
-<main class="main">
-<h1>Computadores</h1>
+    <div class="panel">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="nomePC">Nome do Computador</label>
+          <input id="nomePC" type="text" placeholder="Nome do Computador">
+        </div>
 
-<div id="pcs"></div>
+        <div class="form-group">
+          <label for="dataPC">Data</label>
+          <input type="date" id="dataPC">
+        </div>
+      </div>
 
-</main>
+      <div id="checklist" class="checklist-grid"></div>
 
-<script src="app.js"></script>
+      <div class="actions-row">
+        <button class="primary-btn" onclick="guardarPC()">Guardar</button>
+      </div>
+    </div>
+
+    <div class="panel mt-20">
+      <h3>Histórico de Computadores</h3>
+      <div id="listaPC" class="cards-list"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
 </body>
 </html>
