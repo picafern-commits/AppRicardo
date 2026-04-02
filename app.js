@@ -13,9 +13,7 @@ let stockGlobal = [];
 let historicoGlobal = [];
 let pcsGlobal = [];
 
-// --------------------
 // AUX
-// --------------------
 function el(id) {
   return document.getElementById(id);
 }
@@ -45,9 +43,7 @@ function mostrarMensagem(texto, tipo = "sucesso") {
   }, 2200);
 }
 
-// --------------------
-// ADICIONAR TONER
-// --------------------
+// GERAR ID
 async function gerarID() {
   const ref = db.collection("config").doc("contador");
 
@@ -59,6 +55,7 @@ async function gerarID() {
   });
 }
 
+// ADICIONAR TONER
 async function disponivel() {
   const equipamento = el("equipamento");
   const localizacao = el("localizacao");
@@ -101,9 +98,7 @@ async function disponivel() {
   }
 }
 
-// --------------------
-// LISTENERS FIREBASE
-// --------------------
+// STOCK
 db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
   stockGlobal = [];
   setText("countStock", snap.size);
@@ -119,6 +114,7 @@ db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
   renderStockTable(stockGlobal);
 });
 
+// HISTÓRICO
 db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   historicoGlobal = [];
   setText("countUsados", snap.size);
@@ -133,6 +129,7 @@ db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   renderHistoricoTable(historicoGlobal);
 });
 
+// PCS
 db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
   pcsGlobal = [];
   setText("countPCs", snap.size);
@@ -146,9 +143,7 @@ db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
   renderPCCards(pcsGlobal);
 });
 
-// --------------------
-// RENDERS
-// --------------------
+// DASHBOARD
 function renderDashboardCards(items) {
   const lista = el("listaDashboardStock");
   if (!lista) return;
@@ -169,6 +164,7 @@ function renderDashboardCards(items) {
   `).join("");
 }
 
+// STOCK EM CARDS
 function renderStockCards(items) {
   const lista = el("listaStock");
   if (!lista) return;
@@ -197,6 +193,7 @@ function renderStockCards(items) {
   `).join("");
 }
 
+// STOCK EM TABELA
 function renderStockTable(items) {
   const tabela = el("stockTable");
   if (!tabela) return;
@@ -217,6 +214,7 @@ function renderStockTable(items) {
   `).join("");
 }
 
+// HISTÓRICO EM CARDS
 function renderHistoricoCards(items) {
   const lista = el("listaHistorico");
   if (!lista) return;
@@ -245,6 +243,7 @@ function renderHistoricoCards(items) {
   `).join("");
 }
 
+// HISTÓRICO EM TABELA
 function renderHistoricoTable(items) {
   const tabela = el("historicoTable");
   if (!tabela) return;
@@ -265,6 +264,7 @@ function renderHistoricoTable(items) {
   `).join("");
 }
 
+// PCS
 function renderPCCards(items) {
   const lista = el("listaPC") || el("pcs");
   if (!lista) return;
@@ -298,9 +298,7 @@ function renderPCCards(items) {
   }).join("");
 }
 
-// --------------------
 // AÇÕES
-// --------------------
 async function usar(id) {
   try {
     const ref = db.collection("stock").doc(id);
@@ -333,16 +331,6 @@ async function apagar(id) {
   } catch (error) {
     console.error(error);
     mostrarMensagem("Erro ao apagar.", "erro");
-  }
-}
-
-async function apagarPC(id) {
-  try {
-    await db.collection("pcs").doc(id).delete();
-    mostrarMensagem("Registo apagado.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao apagar registo.", "erro");
   }
 }
 
@@ -379,9 +367,7 @@ function filtrarDashboard() {
   renderDashboardCards(filtrados);
 }
 
-// --------------------
 // COMPUTADORES
-// --------------------
 const passos = [
   "TEAMVIEWER HOST",
   "TEAMS",
@@ -451,9 +437,17 @@ async function guardarPC() {
   }
 }
 
-// --------------------
+async function apagarPC(id) {
+  try {
+    await db.collection("pcs").doc(id).delete();
+    mostrarMensagem("Registo apagado.");
+  } catch (error) {
+    console.error(error);
+    mostrarMensagem("Erro ao apagar registo.", "erro");
+  }
+}
+
 // DARK MODE + PWA
-// --------------------
 window.onload = () => {
   const sw = el("darkSwitch") || el("dark");
 
