@@ -4,12 +4,24 @@ const firebaseConfig = {
   projectId: "toner-manager-756c4"
 };
 
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.firestore();
 
 let stockGlobal = [];
 let historicoGlobal = [];
 let pcsGlobal = [];
+
+// AUX
+function el(id) {
+  return document.getElementById(id);
+}
+
+function setText(id, value) {
+  const node = el(id);
+  if (node) node.innerText = value;
+}
 
 // NAVEGAÇÃO
 function mudarPagina(pageId, btn = null) {
@@ -17,7 +29,7 @@ function mudarPagina(pageId, btn = null) {
     page.classList.remove("active-page");
   });
 
-  const page = document.getElementById(pageId);
+  const page = el(pageId);
   if (page) {
     page.classList.add("active-page");
   }
@@ -49,12 +61,19 @@ async function gerarID() {
 
 // ADICIONAR TONER
 async function disponivel() {
-  const eq = document.getElementById("equipamento").value;
-  const loc = document.getElementById("localizacao").value;
-  const cor = document.getElementById("cor").value;
-  const data = document.getElementById("data").value;
+  const equipamento = el("equipamento");
+  const localizacao = el("localizacao");
+  const cor = el("cor");
+  const data = el("data");
 
-  if (!eq || !cor) {
+  if (!equipamento || !cor) return;
+
+  const eq = equipamento.value;
+  const loc = localizacao ? localizacao.value : "";
+  const corValue = cor.value;
+  const dataValue = data ? data.value : "";
+
+  if (!eq || !corValue) {
     alert("Preenche o equipamento e a cor.");
     return;
   }
@@ -66,18 +85,17 @@ async function disponivel() {
       idInterno: id,
       equipamento: eq,
       localizacao: loc || "Sem Localização",
-      cor: cor,
-      data: data || "Sem Data",
+      cor: corValue,
+      data: dataValue || "Sem Data",
       created: new Date()
     });
 
-    document.getElementById("equipamento").value = "";
-    document.getElementById("localizacao").value = "";
-    document.getElementById("cor").value = "";
-    document.getElementById("data").value = "";
+    equipamento.value = "";
+    if (localizacao) localizacao.value = "";
+    cor.value = "";
+    if (data) data.value = "";
 
     alert("Toner adicionado com sucesso.");
-    mudarPagina("stockPage", document.querySelectorAll(".menu-btn")[2]);
   } catch (error) {
     console.error(error);
     alert("Erro ao adicionar toner.");
@@ -87,13 +105,7 @@ async function disponivel() {
 // STOCK
 db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
   stockGlobal = [];
-  document.getElementById("countStock").innerText = snap.size;
-
-  const lista = document.getElementById("listaStock");
-  const listaDashboard = document.getElementById("listaDashboardStock");
-
-  lista.innerHTML = "";
-  listaDashboard.innerHTML = "";
+  setText("countStock", snap.size);
 
   snap.forEach(doc => {
     const t = doc.data();
@@ -101,17 +113,15 @@ db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
     stockGlobal.push(t);
   });
 
-  renderStockCards(stockGlobal, "listaStock");
+  renderStockCards(stockGlobal);
   renderDashboardCards(stockGlobal);
+  renderStockTable(stockGlobal);
 });
 
 // HISTÓRICO TONER
 db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   historicoGlobal = [];
-  document.getElementById("countUsados").innerText = snap.size;
-
-  const lista = document.getElementById("listaHistorico");
-  lista.innerHTML = "";
+  setText("countUsados", snap.size);
 
   snap.forEach(doc => {
     const t = doc.data();
@@ -120,15 +130,13 @@ db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   });
 
   renderHistoricoCards(historicoGlobal);
+  renderHistoricoTable(historicoGlobal);
 });
 
 // PCS
-db.collection("pcs").orderBy("data", "desc").onSnapshot(snap => {
+db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
   pcsGlobal = [];
-  document.getElementById("countPCs").innerText = snap.size;
-
-  const lista = document.getElementById("listaPC");
-  lista.innerHTML = "";
+  setText("countPCs", snap.size);
 
   snap.forEach(doc => {
     const d = doc.data();
@@ -139,9 +147,30 @@ db.collection("pcs").orderBy("data", "desc").onSnapshot(snap => {
   renderPCCards(pcsGlobal);
 });
 
-// RENDER STOCK
-function renderStockCards(items, targetId) {
-  const lista = document.getElementById(targetId);
+// RENDER DASHBOARD
+function renderDashboardCards(items) {
+  const lista = el("listaDashboardStock");
+  if (!lista) return;
+
+  const recent = items.slice(0, 5);
+
+  if (!recent.length) {
+    lista.innerHTML = `<div class="dashboard-card">Sem toners recentes.</div>`;
+    return;
+  }
+
+  lista.innerHTML = recent.map(t => `
+    <div class="dashboard-card">
+      <strong>${t.idInterno}</strong><br>
+      ${t.equipamento} - ${t.cor}<br>
+      <span class="stock-meta">${t.localizacao}</span>
+    </div>
+  `).join("");
+}
+
+// RENDER STOCK EM CARDS
+function renderStockCards(items) {
+  const lista = el("listaStock");
   if (!lista) return;
 
   if (!items.length) {
@@ -161,39 +190,37 @@ function renderStockCards(items, targetId) {
           </div>
         </div>
       </div>
-      ${targetId === "listaStock" ? `
-        <div class="card-actions">
-          <button class="small-btn btn-use" onclick="usar('${t.idDoc}')">Marcar como usado</button>
-        </div>
-      ` : ""}
+      <div class="card-actions">
+        <button class="small-btn btn-use" onclick="usar('${t.idDoc}')">Marcar como usado</button>
+      </div>
     </div>
   `).join("");
 }
 
-// RENDER DASHBOARD
-function renderDashboardCards(items) {
-  const lista = document.getElementById("listaDashboardStock");
-  if (!lista) return;
+// RENDER STOCK EM TABELA
+function renderStockTable(items) {
+  const tabela = el("stockTable");
+  if (!tabela) return;
 
-  const recent = items.slice(0, 5);
-
-  if (!recent.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem toners recentes.</div>`;
+  if (!items.length) {
+    tabela.innerHTML = `<tr><td colspan="5">Sem toners em stock.</td></tr>`;
     return;
   }
 
-  lista.innerHTML = recent.map(t => `
-    <div class="dashboard-card">
-      <strong>${t.idInterno}</strong><br>
-      ${t.equipamento} - ${t.cor}<br>
-      <span class="stock-meta">${t.localizacao}</span>
-    </div>
+  tabela.innerHTML = items.map(t => `
+    <tr>
+      <td>${t.idInterno}</td>
+      <td>${t.equipamento} - ${t.cor}</td>
+      <td>${t.localizacao}</td>
+      <td>1</td>
+      <td>${t.data || "Sem Data"}</td>
+    </tr>
   `).join("");
 }
 
-// RENDER HISTÓRICO
+// RENDER HISTÓRICO EM CARDS
 function renderHistoricoCards(items) {
-  const lista = document.getElementById("listaHistorico");
+  const lista = el("listaHistorico");
   if (!lista) return;
 
   if (!items.length) {
@@ -220,17 +247,40 @@ function renderHistoricoCards(items) {
   `).join("");
 }
 
-// RENDER PCs
-function renderPCCards(items) {
-  const lista = document.getElementById("listaPC");
-  if (!lista) return;
+// RENDER HISTÓRICO EM TABELA
+function renderHistoricoTable(items) {
+  const tabela = el("historicoTable");
+  if (!tabela) return;
 
   if (!items.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem registos de computadores.</div>`;
+    tabela.innerHTML = `<tr><td colspan="5">Sem histórico.</td></tr>`;
     return;
   }
 
-  lista.innerHTML = items.map(d => {
+  tabela.innerHTML = items.map(t => `
+    <tr>
+      <td>${t.idInterno}</td>
+      <td>${t.equipamento} - ${t.cor || ""}</td>
+      <td>${t.localizacao || "Sem Localização"}</td>
+      <td>Usado</td>
+      <td>${t.data || "Sem Data"}</td>
+    </tr>
+  `).join("");
+}
+
+// RENDER PCs
+function renderPCCards(items) {
+  const lista = el("listaPC");
+  if (!lista && !el("pcs")) return;
+
+  const target = el("listaPC") || el("pcs");
+
+  if (!items.length) {
+    target.innerHTML = `<div class="dashboard-card">Sem registos de computadores.</div>`;
+    return;
+  }
+
+  target.innerHTML = items.map(d => {
     const htmlPassos = (d.passos || []).map(p => `
       <div>${p.feito ? "✔" : "❌"} ${p.passo}</div>
     `).join("");
@@ -295,7 +345,10 @@ async function apagar(id) {
 
 // FILTRO STOCK
 function filtrar() {
-  const txt = document.getElementById("search").value.toLowerCase();
+  const search = el("search");
+  if (!search) return;
+
+  const txt = search.value.toLowerCase();
 
   const filtrados = stockGlobal.filter(t =>
     (t.localizacao || "").toLowerCase().includes(txt) ||
@@ -304,12 +357,16 @@ function filtrar() {
     (t.idInterno || "").toLowerCase().includes(txt)
   );
 
-  renderStockCards(filtrados, "listaStock");
+  renderStockCards(filtrados);
+  renderStockTable(filtrados);
 }
 
 // FILTRO DASHBOARD
 function filtrarDashboard() {
-  const txt = document.getElementById("searchDashboard").value.toLowerCase();
+  const search = el("searchDashboard");
+  if (!search) return;
+
+  const txt = search.value.toLowerCase();
 
   const filtrados = stockGlobal.filter(t =>
     (t.localizacao || "").toLowerCase().includes(txt) ||
@@ -338,25 +395,26 @@ const passos = [
 ];
 
 function carregarChecklist() {
-  const el = document.getElementById("checklist");
-  if (!el) return;
+  const checklist = el("checklist");
+  if (!checklist) return;
 
-  let html = "";
-  passos.forEach((p, i) => {
-    html += `
-      <label class="checkItem">
-        <input type="checkbox" id="p${i}">
-        <span>${p}</span>
-      </label>
-    `;
-  });
-  el.innerHTML = html;
+  checklist.innerHTML = passos.map((p, i) => `
+    <label class="checkItem">
+      <input type="checkbox" id="p${i}">
+      <span>${p}</span>
+    </label>
+  `).join("");
 }
 
 // GUARDAR PC
 async function guardarPC() {
-  const nome = document.getElementById("nomePC").value.trim();
-  let data = document.getElementById("dataPC").value;
+  const nomePC = el("nomePC");
+  const dataPC = el("dataPC");
+
+  if (!nomePC) return;
+
+  const nome = nomePC.value.trim();
+  let data = dataPC ? dataPC.value : "";
 
   if (!nome) {
     alert("Nome obrigatório.");
@@ -369,20 +427,20 @@ async function guardarPC() {
   passos.forEach((p, i) => {
     dados.push({
       passo: p,
-      feito: document.getElementById("p" + i)?.checked || false
+      feito: el("p" + i)?.checked || false
     });
   });
 
   try {
     await db.collection("pcs").add({
-      nome: nome,
-      data: data,
+      nome,
+      data,
       passos: dados,
       created: new Date()
     });
 
-    document.getElementById("nomePC").value = "";
-    document.getElementById("dataPC").value = "";
+    nomePC.value = "";
+    if (dataPC) dataPC.value = "";
     carregarChecklist();
     alert("Computador guardado com sucesso.");
   } catch (error) {
@@ -405,18 +463,20 @@ async function apagarPC(id) {
 
 // DARK MODE
 window.onload = () => {
-  const sw = document.getElementById("darkSwitch");
+  const sw = el("darkSwitch") || el("dark");
 
   carregarChecklist();
 
   if (localStorage.getItem("modo") === "dark") {
     document.body.classList.add("dark");
+    document.documentElement.classList.add("dark");
     if (sw) sw.checked = true;
   }
 
   if (sw) {
     sw.addEventListener("change", () => {
-      document.body.classList.toggle("dark");
+      document.body.classList.toggle("dark", sw.checked);
+      document.documentElement.classList.toggle("dark", sw.checked);
       localStorage.setItem("modo", sw.checked ? "dark" : "light");
     });
   }
