@@ -13,7 +13,9 @@ let stockGlobal = [];
 let historicoGlobal = [];
 let pcsGlobal = [];
 
+// --------------------
 // AUX
+// --------------------
 function el(id) {
   return document.getElementById(id);
 }
@@ -23,31 +25,29 @@ function setText(id, value) {
   if (node) node.innerText = value;
 }
 
-// NAVEGAÇÃO
-function mudarPagina(pageId, btn = null) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.remove("active-page");
-  });
+function mostrarMensagem(texto, tipo = "sucesso") {
+  let msg = el("mensagemApp");
 
-  const page = el(pageId);
-  if (page) {
-    page.classList.add("active-page");
+  if (!msg) {
+    msg = document.createElement("div");
+    msg.id = "mensagemApp";
+    msg.className = "toast-app";
+    document.body.appendChild(msg);
   }
 
-  document.querySelectorAll(".menu-btn").forEach(b => {
-    b.classList.remove("active");
-  });
+  msg.className = `toast-app ${tipo}`;
+  msg.innerText = texto;
+  msg.style.display = "block";
 
-  if (btn) {
-    btn.classList.add("active");
-  }
-
-  if (pageId === "computadores") {
-    carregarChecklist();
-  }
+  clearTimeout(msg._timer);
+  msg._timer = setTimeout(() => {
+    msg.style.display = "none";
+  }, 2200);
 }
 
-// GERAR ID
+// --------------------
+// ADICIONAR TONER
+// --------------------
 async function gerarID() {
   const ref = db.collection("config").doc("contador");
 
@@ -59,7 +59,6 @@ async function gerarID() {
   });
 }
 
-// ADICIONAR TONER
 async function disponivel() {
   const equipamento = el("equipamento");
   const localizacao = el("localizacao");
@@ -74,7 +73,7 @@ async function disponivel() {
   const dataValue = data ? data.value : "";
 
   if (!eq || !corValue) {
-    alert("Preenche o equipamento e a cor.");
+    mostrarMensagem("Preenche o equipamento e a cor.", "erro");
     return;
   }
 
@@ -95,14 +94,16 @@ async function disponivel() {
     cor.value = "";
     if (data) data.value = "";
 
-    console.log("Toner adicionado com sucesso.");
+    mostrarMensagem("Toner adicionado com sucesso.");
   } catch (error) {
     console.error(error);
-    console.log("Erro ao adicionar toner.");
+    mostrarMensagem("Erro ao adicionar toner.", "erro");
   }
 }
 
-// STOCK
+// --------------------
+// LISTENERS FIREBASE
+// --------------------
 db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
   stockGlobal = [];
   setText("countStock", snap.size);
@@ -113,12 +114,11 @@ db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
     stockGlobal.push(t);
   });
 
-  renderStockCards(stockGlobal);
   renderDashboardCards(stockGlobal);
+  renderStockCards(stockGlobal);
   renderStockTable(stockGlobal);
 });
 
-// HISTÓRICO TONER
 db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   historicoGlobal = [];
   setText("countUsados", snap.size);
@@ -133,7 +133,6 @@ db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
   renderHistoricoTable(historicoGlobal);
 });
 
-// PCS
 db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
   pcsGlobal = [];
   setText("countPCs", snap.size);
@@ -147,7 +146,9 @@ db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
   renderPCCards(pcsGlobal);
 });
 
-// RENDER DASHBOARD
+// --------------------
+// RENDERS
+// --------------------
 function renderDashboardCards(items) {
   const lista = el("listaDashboardStock");
   if (!lista) return;
@@ -168,7 +169,6 @@ function renderDashboardCards(items) {
   `).join("");
 }
 
-// RENDER STOCK EM CARDS
 function renderStockCards(items) {
   const lista = el("listaStock");
   if (!lista) return;
@@ -197,7 +197,6 @@ function renderStockCards(items) {
   `).join("");
 }
 
-// RENDER STOCK EM TABELA
 function renderStockTable(items) {
   const tabela = el("stockTable");
   if (!tabela) return;
@@ -218,7 +217,6 @@ function renderStockTable(items) {
   `).join("");
 }
 
-// RENDER HISTÓRICO EM CARDS
 function renderHistoricoCards(items) {
   const lista = el("listaHistorico");
   if (!lista) return;
@@ -247,7 +245,6 @@ function renderHistoricoCards(items) {
   `).join("");
 }
 
-// RENDER HISTÓRICO EM TABELA
 function renderHistoricoTable(items) {
   const tabela = el("historicoTable");
   if (!tabela) return;
@@ -268,19 +265,16 @@ function renderHistoricoTable(items) {
   `).join("");
 }
 
-// RENDER PCs
 function renderPCCards(items) {
-  const lista = el("listaPC");
-  if (!lista && !el("pcs")) return;
-
-  const target = el("listaPC") || el("pcs");
+  const lista = el("listaPC") || el("pcs");
+  if (!lista) return;
 
   if (!items.length) {
-    target.innerHTML = `<div class="dashboard-card">Sem registos de computadores.</div>`;
+    lista.innerHTML = `<div class="dashboard-card">Sem registos de computadores.</div>`;
     return;
   }
 
-  target.innerHTML = items.map(d => {
+  lista.innerHTML = items.map(d => {
     const htmlPassos = (d.passos || []).map(p => `
       <div>${p.feito ? "✔" : "❌"} ${p.passo}</div>
     `).join("");
@@ -304,16 +298,16 @@ function renderPCCards(items) {
   }).join("");
 }
 
-// USAR TONER
+// --------------------
+// AÇÕES
+// --------------------
 async function usar(id) {
-  if (!confirm("Marcar como usado?")) return;
-
   try {
     const ref = db.collection("stock").doc(id);
     const snap = await ref.get();
 
     if (!snap.exists) {
-      console.log("Toner não encontrado.");
+      mostrarMensagem("Toner não encontrado.", "erro");
       return;
     }
 
@@ -325,25 +319,33 @@ async function usar(id) {
     });
 
     await ref.delete();
+    mostrarMensagem("Toner movido para histórico.");
   } catch (error) {
     console.error(error);
-    console.log("Erro ao mover para histórico.");
+    mostrarMensagem("Erro ao mover para histórico.", "erro");
   }
 }
 
-// APAGAR HISTÓRICO
 async function apagar(id) {
-  if (!confirm("Apagar do histórico?")) return;
-
   try {
     await db.collection("historico").doc(id).delete();
+    mostrarMensagem("Histórico apagado.");
   } catch (error) {
     console.error(error);
-    console.log("Erro ao apagar.");
+    mostrarMensagem("Erro ao apagar.", "erro");
   }
 }
 
-// FILTRO STOCK
+async function apagarPC(id) {
+  try {
+    await db.collection("pcs").doc(id).delete();
+    mostrarMensagem("Registo apagado.");
+  } catch (error) {
+    console.error(error);
+    mostrarMensagem("Erro ao apagar registo.", "erro");
+  }
+}
+
 function filtrar() {
   const search = el("search");
   if (!search) return;
@@ -361,7 +363,6 @@ function filtrar() {
   renderStockTable(filtrados);
 }
 
-// FILTRO DASHBOARD
 function filtrarDashboard() {
   const search = el("searchDashboard");
   if (!search) return;
@@ -378,7 +379,9 @@ function filtrarDashboard() {
   renderDashboardCards(filtrados);
 }
 
-// CHECKLIST PCs
+// --------------------
+// COMPUTADORES
+// --------------------
 const passos = [
   "TEAMVIEWER HOST",
   "TEAMS",
@@ -406,7 +409,6 @@ function carregarChecklist() {
   `).join("");
 }
 
-// GUARDAR PC
 async function guardarPC() {
   const nomePC = el("nomePC");
   const dataPC = el("dataPC");
@@ -417,7 +419,7 @@ async function guardarPC() {
   let data = dataPC ? dataPC.value : "";
 
   if (!nome) {
-    alert("Nome obrigatório.");
+    mostrarMensagem("Nome obrigatório.", "erro");
     return;
   }
 
@@ -442,26 +444,16 @@ async function guardarPC() {
     nomePC.value = "";
     if (dataPC) dataPC.value = "";
     carregarChecklist();
-    console.log("Computador guardado com sucesso.");
+    mostrarMensagem("Computador guardado com sucesso.");
   } catch (error) {
     console.error(error);
-    console.log("Erro ao guardar computador.");
+    mostrarMensagem("Erro ao guardar computador.", "erro");
   }
 }
 
-// APAGAR PC
-async function apagarPC(id) {
-  if (!confirm("Apagar registo?")) return;
-
-  try {
-    await db.collection("pcs").doc(id).delete();
-  } catch (error) {
-    console.error(error);
-    alert("Erro ao apagar registo.");
-  }
-}
-
-// DARK MODE
+// --------------------
+// DARK MODE + PWA
+// --------------------
 window.onload = () => {
   const sw = el("darkSwitch") || el("dark");
 
@@ -479,5 +471,10 @@ window.onload = () => {
       document.documentElement.classList.toggle("dark", sw.checked);
       localStorage.setItem("modo", sw.checked ? "dark" : "light");
     });
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(err => console.error("Erro ao registar service worker:", err));
   }
 };
