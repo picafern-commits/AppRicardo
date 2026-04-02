@@ -12,463 +12,268 @@ const db = firebase.firestore();
 let stockGlobal = [];
 let historicoGlobal = [];
 let pcsGlobal = [];
+let editDocId = null;
 
-// AUX
-function el(id) {
-  return document.getElementById(id);
-}
-
-function setText(id, value) {
-  const node = el(id);
-  if (node) node.innerText = value;
-}
-
-function mostrarMensagem(texto, tipo = "sucesso") {
-  let msg = el("mensagemApp");
-
-  if (!msg) {
-    msg = document.createElement("div");
-    msg.id = "mensagemApp";
-    msg.className = "toast-app";
-    document.body.appendChild(msg);
+// --------------------
+// TOAST
+// --------------------
+function msg(texto, tipo="ok"){
+  let el = document.getElementById("toast");
+  if(!el){
+    el = document.createElement("div");
+    el.id="toast";
+    el.className="toast";
+    document.body.appendChild(el);
   }
 
-  msg.className = `toast-app ${tipo}`;
-  msg.innerText = texto;
-  msg.style.display = "block";
+  el.innerText = texto;
+  el.style.background = tipo==="erro" ? "#dc2626" : "#16a34a";
+  el.style.display="block";
 
-  clearTimeout(msg._timer);
-  msg._timer = setTimeout(() => {
-    msg.style.display = "none";
-  }, 2200);
+  setTimeout(()=> el.style.display="none",2000);
 }
 
+// --------------------
 // GERAR ID
-async function gerarID() {
+// --------------------
+async function gerarID(){
   const ref = db.collection("config").doc("contador");
 
-  return db.runTransaction(async t => {
+  return db.runTransaction(async t=>{
     const doc = await t.get(ref);
-    const n = doc.exists ? doc.data().valor + 1 : 1;
-    t.set(ref, { valor: n });
-    return "TON-" + String(n).padStart(4, "0");
+    const n = doc.exists ? doc.data().valor+1 : 1;
+    t.set(ref,{valor:n});
+    return "TON-"+String(n).padStart(4,"0");
   });
 }
 
+// --------------------
 // ADICIONAR TONER
-async function disponivel() {
-  const equipamento = el("equipamento");
-  const localizacao = el("localizacao");
-  const cor = el("cor");
-  const data = el("data");
+// --------------------
+async function disponivel(){
+  const eq = document.getElementById("equipamento")?.value;
+  const loc = document.getElementById("localizacao")?.value;
+  const cor = document.getElementById("cor")?.value;
+  const data = document.getElementById("data")?.value;
 
-  if (!equipamento || !cor) return;
-
-  const eq = equipamento.value;
-  const loc = localizacao ? localizacao.value : "";
-  const corValue = cor.value;
-  const dataValue = data ? data.value : "";
-
-  if (!eq || !corValue) {
-    mostrarMensagem("Preenche o equipamento e a cor.", "erro");
+  if(!eq || !cor){
+    msg("Preenche os campos obrigatórios","erro");
     return;
   }
 
-  try {
-    const id = await gerarID();
+  const id = await gerarID();
 
-    await db.collection("stock").add({
-      idInterno: id,
-      equipamento: eq,
-      localizacao: loc || "Sem Localização",
-      cor: corValue,
-      data: dataValue || "Sem Data",
-      created: new Date()
-    });
+  await db.collection("stock").add({
+    idInterno:id,
+    equipamento:eq,
+    localizacao:loc||"Sem Localização",
+    cor,
+    data:data||"Sem Data",
+    created:new Date()
+  });
 
-    equipamento.value = "";
-    if (localizacao) localizacao.value = "";
-    cor.value = "";
-    if (data) data.value = "";
-
-    mostrarMensagem("Toner adicionado com sucesso.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao adicionar toner.", "erro");
-  }
+  msg("Toner adicionado");
 }
 
-// STOCK
-db.collection("stock").orderBy("created", "desc").onSnapshot(snap => {
-  stockGlobal = [];
-  setText("countStock", snap.size);
-
-  snap.forEach(doc => {
-    const t = doc.data();
-    t.idDoc = doc.id;
-    stockGlobal.push(t);
+// --------------------
+// LISTENERS
+// --------------------
+db.collection("stock").orderBy("created","desc").onSnapshot(snap=>{
+  stockGlobal=[];
+  snap.forEach(d=>{
+    let x=d.data();
+    x.idDoc=d.id;
+    stockGlobal.push(x);
   });
 
-  renderDashboardCards(stockGlobal);
-  renderStockCards(stockGlobal);
-  renderStockTable(stockGlobal);
+  renderStock();
+  renderDashboard();
 });
 
-// HISTÓRICO
-db.collection("historico").orderBy("created", "desc").onSnapshot(snap => {
-  historicoGlobal = [];
-  setText("countUsados", snap.size);
-
-  snap.forEach(doc => {
-    const t = doc.data();
-    t.idDoc = doc.id;
-    historicoGlobal.push(t);
+db.collection("historico").orderBy("created","desc").onSnapshot(snap=>{
+  historicoGlobal=[];
+  snap.forEach(d=>{
+    let x=d.data();
+    x.idDoc=d.id;
+    historicoGlobal.push(x);
   });
 
-  renderHistoricoCards(historicoGlobal);
-  renderHistoricoTable(historicoGlobal);
+  renderHistorico();
 });
 
-// PCS
-db.collection("pcs").orderBy("created", "desc").onSnapshot(snap => {
-  pcsGlobal = [];
-  setText("countPCs", snap.size);
-
-  snap.forEach(doc => {
-    const d = doc.data();
-    d.idDoc = doc.id;
-    pcsGlobal.push(d);
+db.collection("pcs").orderBy("created","desc").onSnapshot(snap=>{
+  pcsGlobal=[];
+  snap.forEach(d=>{
+    let x=d.data();
+    x.idDoc=d.id;
+    pcsGlobal.push(x);
   });
 
-  renderPCCards(pcsGlobal);
+  renderPC();
 });
 
-// DASHBOARD
-function renderDashboardCards(items) {
-  const lista = el("listaDashboardStock");
-  if (!lista) return;
+// --------------------
+// RENDER STOCK
+// --------------------
+function renderStock(){
+  const el = document.getElementById("listaStock");
+  if(!el) return;
 
-  const recent = items.slice(0, 5);
-
-  if (!recent.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem toners recentes.</div>`;
-    return;
-  }
-
-  lista.innerHTML = recent.map(t => `
-    <div class="dashboard-card">
-      <strong>${t.idInterno}</strong><br>
-      ${t.equipamento} - ${t.cor}<br>
-      <span class="stock-meta">${t.localizacao}</span>
-    </div>
-  `).join("");
-}
-
-// STOCK EM CARDS
-function renderStockCards(items) {
-  const lista = el("listaStock");
-  if (!lista) return;
-
-  if (!items.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem toners em stock.</div>`;
-    return;
-  }
-
-  lista.innerHTML = items.map(t => `
+  el.innerHTML = stockGlobal.map(t=>`
     <div class="stock-card">
-      <div class="stock-card-top">
-        <div>
-          <div class="stock-id">${t.idInterno}</div>
-          <div class="stock-meta">
-            ${t.equipamento} - ${t.cor}<br>
-            ${t.localizacao}<br>
-            📅 ${t.data || "Sem Data"}
-          </div>
-        </div>
-      </div>
+      <b>${t.idInterno}</b><br>
+      ${t.equipamento} - ${t.cor}<br>
+      ${t.localizacao}<br>
+
       <div class="card-actions">
-        <button class="small-btn btn-use" onclick="usar('${t.idDoc}')">Marcar como usado</button>
+        <button onclick="usar('${t.idDoc}')">Usado</button>
+        <button onclick="editar('${t.idDoc}')">Editar</button>
       </div>
     </div>
   `).join("");
 }
 
-// STOCK EM TABELA
-function renderStockTable(items) {
-  const tabela = el("stockTable");
-  if (!tabela) return;
+// --------------------
+// RENDER HISTORICO
+// --------------------
+function renderHistorico(){
+  const el = document.getElementById("listaHistorico");
+  if(!el) return;
 
-  if (!items.length) {
-    tabela.innerHTML = `<tr><td colspan="5">Sem toners em stock.</td></tr>`;
-    return;
-  }
-
-  tabela.innerHTML = items.map(t => `
-    <tr>
-      <td>${t.idInterno}</td>
-      <td>${t.equipamento} - ${t.cor}</td>
-      <td>${t.localizacao}</td>
-      <td>1</td>
-      <td>${t.data || "Sem Data"}</td>
-    </tr>
-  `).join("");
-}
-
-// HISTÓRICO EM CARDS
-function renderHistoricoCards(items) {
-  const lista = el("listaHistorico");
-  if (!lista) return;
-
-  if (!items.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem histórico.</div>`;
-    return;
-  }
-
-  lista.innerHTML = items.map(t => `
+  el.innerHTML = historicoGlobal.map(t=>`
     <div class="history-card">
-      <div class="history-card-top">
-        <div>
-          <div class="history-id">${t.idInterno}</div>
-          <div class="history-meta">
-            ${t.equipamento} - ${t.cor || ""}<br>
-            ${t.localizacao || "Sem Localização"}<br>
-            📅 ${t.data || "Sem Data"}
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="small-btn btn-delete" onclick="apagar('${t.idDoc}')">Apagar</button>
-      </div>
+      <b>${t.idInterno}</b><br>
+      ${t.equipamento} - ${t.cor}<br>
+      ${t.localizacao}<br>
+
+      <button onclick="apagar('${t.idDoc}')">Apagar</button>
     </div>
   `).join("");
 }
 
-// HISTÓRICO EM TABELA
-function renderHistoricoTable(items) {
-  const tabela = el("historicoTable");
-  if (!tabela) return;
+// --------------------
+// RENDER DASHBOARD
+// --------------------
+function renderDashboard(){
+  const el = document.getElementById("listaDashboardStock");
+  if(!el) return;
 
-  if (!items.length) {
-    tabela.innerHTML = `<tr><td colspan="5">Sem histórico.</td></tr>`;
-    return;
-  }
-
-  tabela.innerHTML = items.map(t => `
-    <tr>
-      <td>${t.idInterno}</td>
-      <td>${t.equipamento} - ${t.cor || ""}</td>
-      <td>${t.localizacao || "Sem Localização"}</td>
-      <td>Usado</td>
-      <td>${t.data || "Sem Data"}</td>
-    </tr>
+  el.innerHTML = stockGlobal.slice(0,5).map(t=>`
+    <div class="dashboard-card">
+      ${t.idInterno}<br>
+      ${t.equipamento}
+    </div>
   `).join("");
 }
 
+// --------------------
+// USAR
+// --------------------
+async function usar(id){
+  const ref = db.collection("stock").doc(id);
+  const snap = await ref.get();
+
+  await db.collection("historico").add({
+    ...snap.data(),
+    created:new Date()
+  });
+
+  await ref.delete();
+  msg("Movido para histórico");
+}
+
+// --------------------
+// APAGAR
+// --------------------
+async function apagar(id){
+  await db.collection("historico").doc(id).delete();
+  msg("Apagado");
+}
+
+// --------------------
+// EDITAR
+// --------------------
+function editar(id){
+  const t = stockGlobal.find(x=>x.idDoc===id);
+  if(!t) return;
+
+  editDocId=id;
+
+  document.getElementById("equipamento").value=t.equipamento;
+  document.getElementById("localizacao").value=t.localizacao;
+  document.getElementById("cor").value=t.cor;
+  document.getElementById("data").value=t.data;
+}
+
+// --------------------
+// EXPORTAR CSV
+// --------------------
+function exportar(){
+  let csv="ID;Equipamento;Local;Cor\n";
+
+  stockGlobal.forEach(t=>{
+    csv+=`${t.idInterno};${t.equipamento};${t.localizacao};${t.cor}\n`;
+  });
+
+  const blob=new Blob([csv]);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="stock.csv";
+  a.click();
+}
+
+// --------------------
 // PCS
-function renderPCCards(items) {
-  const lista = el("listaPC") || el("pcs");
-  if (!lista) return;
-
-  if (!items.length) {
-    lista.innerHTML = `<div class="dashboard-card">Sem registos de computadores.</div>`;
-    return;
-  }
-
-  lista.innerHTML = items.map(d => {
-    const htmlPassos = (d.passos || []).map(p => `
-      <div>${p.feito ? "✔" : "❌"} ${p.passo}</div>
-    `).join("");
-
-    return `
-      <div class="pc-card">
-        <div class="pc-card-top">
-          <div>
-            <div class="pc-name">${d.nome}</div>
-            <div class="pc-meta">📅 ${d.data || "Sem Data"}</div>
-          </div>
-        </div>
-        <div class="pc-meta" style="margin-top:12px;">
-          ${htmlPassos}
-        </div>
-        <div class="card-actions">
-          <button class="small-btn btn-delete" onclick="apagarPC('${d.idDoc}')">Apagar</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-// AÇÕES
-async function usar(id) {
-  try {
-    const ref = db.collection("stock").doc(id);
-    const snap = await ref.get();
-
-    if (!snap.exists) {
-      mostrarMensagem("Toner não encontrado.", "erro");
-      return;
-    }
-
-    const data = snap.data();
-
-    await db.collection("historico").add({
-      ...data,
-      created: new Date()
-    });
-
-    await ref.delete();
-    mostrarMensagem("Toner movido para histórico.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao mover para histórico.", "erro");
-  }
-}
-
-async function apagar(id) {
-  try {
-    await db.collection("historico").doc(id).delete();
-    mostrarMensagem("Histórico apagado.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao apagar.", "erro");
-  }
-}
-
-function filtrar() {
-  const search = el("search");
-  if (!search) return;
-
-  const txt = search.value.toLowerCase();
-
-  const filtrados = stockGlobal.filter(t =>
-    (t.localizacao || "").toLowerCase().includes(txt) ||
-    (t.equipamento || "").toLowerCase().includes(txt) ||
-    (t.cor || "").toLowerCase().includes(txt) ||
-    (t.idInterno || "").toLowerCase().includes(txt)
-  );
-
-  renderStockCards(filtrados);
-  renderStockTable(filtrados);
-}
-
-function filtrarDashboard() {
-  const search = el("searchDashboard");
-  if (!search) return;
-
-  const txt = search.value.toLowerCase();
-
-  const filtrados = stockGlobal.filter(t =>
-    (t.localizacao || "").toLowerCase().includes(txt) ||
-    (t.equipamento || "").toLowerCase().includes(txt) ||
-    (t.cor || "").toLowerCase().includes(txt) ||
-    (t.idInterno || "").toLowerCase().includes(txt)
-  );
-
-  renderDashboardCards(filtrados);
-}
-
-// COMPUTADORES
-const passos = [
-  "TEAMVIEWER HOST",
-  "TEAMS",
-  "DNS",
-  "NOME DO SISTEMA",
-  "Atribuir Dominio",
-  "Desinstalar MCFee",
-  "Instalar Sophos",
-  "MICROSOFT 365",
-  "Instalar Impressora",
-  "Alterar Energia",
-  "Apagar User",
-  "Criar novo user"
+// --------------------
+const passos=[
+ "TEAMVIEWER","TEAMS","DNS","DOMINIO"
 ];
 
-function carregarChecklist() {
-  const checklist = el("checklist");
-  if (!checklist) return;
+function renderPC(){
+  const el=document.getElementById("listaPC");
+  if(!el) return;
 
-  checklist.innerHTML = passos.map((p, i) => `
-    <label class="checkItem">
-      <input type="checkbox" id="p${i}">
-      <span>${p}</span>
-    </label>
+  el.innerHTML=pcsGlobal.map(p=>`
+    <div class="pc-card">
+      ${p.nome}
+      <button onclick="apagarPC('${p.idDoc}')">Apagar</button>
+    </div>
   `).join("");
 }
 
-async function guardarPC() {
-  const nomePC = el("nomePC");
-  const dataPC = el("dataPC");
+async function guardarPC(){
+  const nome=document.getElementById("nomePC").value;
 
-  if (!nomePC) return;
-
-  const nome = nomePC.value.trim();
-  let data = dataPC ? dataPC.value : "";
-
-  if (!nome) {
-    mostrarMensagem("Nome obrigatório.", "erro");
-    return;
-  }
-
-  if (!data) data = "Sem Data";
-
-  const dados = [];
-  passos.forEach((p, i) => {
-    dados.push({
-      passo: p,
-      feito: el("p" + i)?.checked || false
-    });
+  await db.collection("pcs").add({
+    nome,
+    created:new Date()
   });
 
-  try {
-    await db.collection("pcs").add({
-      nome,
-      data,
-      passos: dados,
-      created: new Date()
-    });
-
-    nomePC.value = "";
-    if (dataPC) dataPC.value = "";
-    carregarChecklist();
-    mostrarMensagem("Computador guardado com sucesso.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao guardar computador.", "erro");
-  }
+  msg("PC guardado");
 }
 
-async function apagarPC(id) {
-  try {
-    await db.collection("pcs").doc(id).delete();
-    mostrarMensagem("Registo apagado.");
-  } catch (error) {
-    console.error(error);
-    mostrarMensagem("Erro ao apagar registo.", "erro");
-  }
+async function apagarPC(id){
+  await db.collection("pcs").doc(id).delete();
+  msg("PC apagado");
 }
 
-// DARK MODE + PWA
-window.onload = () => {
-  const sw = el("darkSwitch") || el("dark");
+// --------------------
+// DARK MODE
+// --------------------
+window.onload=()=>{
+  const sw=document.getElementById("darkSwitch");
 
-  carregarChecklist();
-
-  if (localStorage.getItem("modo") === "dark") {
+  if(localStorage.getItem("modo")==="dark"){
     document.body.classList.add("dark");
     document.documentElement.classList.add("dark");
-    if (sw) sw.checked = true;
+    if(sw) sw.checked=true;
   }
 
-  if (sw) {
-    sw.addEventListener("change", () => {
-      document.body.classList.toggle("dark", sw.checked);
-      document.documentElement.classList.toggle("dark", sw.checked);
-      localStorage.setItem("modo", sw.checked ? "dark" : "light");
+  if(sw){
+    sw.addEventListener("change",()=>{
+      document.body.classList.toggle("dark");
+      document.documentElement.classList.toggle("dark");
+      localStorage.setItem("modo",sw.checked?"dark":"light");
     });
-  }
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(err => console.error("Erro ao registar service worker:", err));
   }
 };
