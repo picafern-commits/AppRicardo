@@ -37,9 +37,13 @@ body {
   color: white;
   text-decoration: none;
   font-size: 18px;
+  display: block;
+  padding: 5px;
+  border-radius: 4px;
 }
+.sidebar nav ul li a.active,
 .sidebar nav ul li a:hover {
-  text-decoration: underline;
+  background: #0366d6;
 }
 
 /* CONTEÚDO PRINCIPAL */
@@ -66,15 +70,36 @@ header h1 {
   margin-bottom: 10px;
 }
 
+/* DASHBOARD CARDS */
+.dashboard-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.dashboard-card {
+  flex: 1 1 200px;
+  background: #0366d6;
+  color: white;
+  padding: 15px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
 /* TABELAS */
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 table th, table td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: left;
+  word-wrap: break-word;
+}
+table th {
+  background: #0366d6;
+  color: white;
 }
 
 /* MODO ESCURO */
