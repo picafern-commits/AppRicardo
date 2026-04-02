@@ -1,0 +1,58 @@
+body {
+  margin:0;
+  display:flex;
+  font-family:Arial;
+}
+
+.sidebar {
+  width:220px;
+  background:#222;
+  color:#fff;
+  padding:20px;
+  height:100vh;
+}
+
+.sidebar a {
+  display:block;
+  color:#fff;
+  margin:10px 0;
+  text-decoration:none;
+}
+
+.main {
+  padding:20px;
+  flex:1;
+}
+
+.card {
+  background:#007bff;
+  color:#fff;
+  padding:20px;
+  margin:10px;
+  display:inline-block;
+}
+
+table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+td, th {
+  border:1px solid #ccc;
+  padding:10px;
+}
+
+button {
+  padding:5px 10px;
+  margin:2px;
+  cursor:pointer;
+}
+
+.dark-mode {
+  background:#111;
+  color:#eee;
+}
+
+.dark-mode table {
+  color:#eee;
+}
