@@ -1,4 +1,4 @@
-// Dados de exemplo (substituir pela tua lógica)
+// Dados de exemplo (substituir pela tua lógica real)
 let stockData = [
   {id: 1, modelo: "HP 12A", local: "Sala 1", quantidade: 5, data: "01/04/2026"},
   {id: 2, modelo: "Canon 303", local: "Sala 2", quantidade: 3, data: "02/04/2026"}
@@ -11,34 +11,48 @@ let historicoData = [
 
 document.addEventListener("DOMContentLoaded", () => {
   const dashboardInfo = document.getElementById("dashboardInfo");
-  const stockTableBody = document.querySelector("#stockInfo tbody");
-  const historicoTableBody = document.querySelector("#historicoInfo tbody");
   const darkModeToggle = document.getElementById("darkModeToggle");
 
-  // Preencher dashboard
-  dashboardInfo.innerHTML = `<p>Total Stock: ${stockData.reduce((sum, s) => sum + s.quantidade, 0)}</p>`;
+  // Dashboard cards
+  function atualizarDashboard() {
+    const total = stockData.reduce((sum, s) => sum + s.quantidade, 0);
+    const disponiveis = stockData.filter(s => s.quantidade > 0).reduce((sum, s) => sum + s.quantidade, 0);
+    const usados = total - disponiveis;
 
-  // Preencher stock
-  stockTableBody.innerHTML = stockData.map(item => `
-    <tr>
-      <td>${item.id}</td>
-      <td>${item.modelo}</td>
-      <td>${item.local}</td>
-      <td>${item.quantidade}</td>
-      <td>${item.data}</td>
-    </tr>
-  `).join("");
+    dashboardInfo.innerHTML = `
+      <div class="dashboard-card"><h3>Total Stock</h3><p>${total} Toners</p></div>
+      <div class="dashboard-card"><h3>Disponíveis</h3><p>${disponiveis} Toners</p></div>
+      <div class="dashboard-card"><h3>Usados</h3><p>${usados} Toners</p></div>
+    `;
+  }
 
-  // Preencher histórico
-  historicoTableBody.innerHTML = historicoData.map(item => `
-    <tr>
-      <td>${item.id}</td>
-      <td>${item.modelo}</td>
-      <td>${item.local}</td>
-      <td>${item.status}</td>
-      <td>${item.data}</td>
-    </tr>
-  `).join("");
+  atualizarDashboard();
+
+  // Função para preencher tabelas
+  function preencherTabela(idTabela, dados, tipo) {
+    const tbody = document.querySelector(`#${idTabela} tbody`);
+    tbody.innerHTML = dados.map(item => `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.modelo}</td>
+        <td>${item.local}</td>
+        <td>${tipo === 'stock' ? item.quantidade : item.status}</td>
+        <td>${item.data}</td>
+      </tr>
+    `).join('');
+  }
+
+  preencherTabela("stockInfo", stockData, "stock");
+  preencherTabela("historicoInfo", historicoData, "historico");
+
+  // Sidebar: destaque do menu ativo
+  const menuLinks = document.querySelectorAll(".sidebar nav ul li a");
+  menuLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      menuLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+    });
+  });
 
   // Toggle modo escuro
   darkModeToggle.addEventListener("change", () => {
