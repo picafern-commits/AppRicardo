@@ -1,104 +1,213 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressoras Braga</title>
 
-<title>Impressoras Braga</title>
+  <link rel="stylesheet" href="style.css">
 
-<link rel="stylesheet" href="style.css">
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <h2>Impressoras Braga</h2>
+  <aside class="sidebar">
+    <div class="brand">
+      <h2>Impressoras Braga</h2>
+      <p>Gestão de Toners e PCs</p>
+    </div>
 
-  <button onclick="mudarPagina('impressoras')">🖨️ Toners</button>
-  <button onclick="mudarPagina('computadores')">💻 Computadores</button>
-  <button onclick="mudarPagina('config')">⚙️ Config</button>
-</div>
+    <nav class="menu">
+      <button class="menu-btn active" onclick="mudarPagina('dashboard', this)">Dashboard</button>
+      <button class="menu-btn" onclick="mudarPagina('addToner', this)">Adicionar Toner</button>
+      <button class="menu-btn" onclick="mudarPagina('stockPage', this)">Stock</button>
+      <button class="menu-btn" onclick="mudarPagina('historicoPage', this)">Histórico</button>
+      <button class="menu-btn" onclick="mudarPagina('computadores', this)">Computadores</button>
+      <button class="menu-btn" onclick="mudarPagina('config', this)">Configurações</button>
+    </nav>
+  </aside>
 
-<!-- MAIN -->
-<div class="main">
+  <main class="main">
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="page active-page">
+      <div class="topbar">
+        <div>
+          <h1>Dashboard Toners</h1>
+          <p class="subtitle">Resumo geral do sistema</p>
+        </div>
+      </div>
 
-<!-- TONERS -->
-<div id="impressoras">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span>Total em Stock</span>
+          <strong id="countStock">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Total Usados</span>
+          <strong id="countUsados">0</strong>
+        </div>
+        <div class="stat-card">
+          <span>Total PCs</span>
+          <strong id="countPCs">0</strong>
+        </div>
+      </div>
 
-<h1>Dashboard Toners</h1>
+      <div class="panel">
+        <h3>Pesquisa rápida</h3>
+        <input id="searchDashboard" type="text" placeholder="Pesquisar localização..." oninput="filtrarDashboard()">
+        <div id="listaDashboardStock" class="cards-list"></div>
+      </div>
+    </section>
 
-<div class="cards">
-  <div class="card"><b id="countStock">0</b><br>Stock</div>
-  <div class="card"><b id="countUsados">0</b><br>Usados</div>
-</div>
+    <!-- ADICIONAR TONER -->
+    <section id="addToner" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Adicionar Toner</h1>
+          <p class="subtitle">Regista um novo toner no stock</p>
+        </div>
+      </div>
 
-<div class="form">
-<input id="search" placeholder="Pesquisar localização..." oninput="filtrar()">
+      <div class="panel">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="equipamento">Equipamento</label>
+            <select id="equipamento">
+              <option value="">Equipamento</option>
+              <option>P3155DN</option>
+              <option>TASKalfa_255ci</option>
+              <option>PA5500x</option>
+            </select>
+          </div>
 
-<select id="equipamento">
-<option value="">Equipamento</option>
-<option>P3155DN</option>
-<option>TASKalfa_255ci</option>
-<option>PA5500x</option>
-</select>
+          <div class="form-group">
+            <label for="localizacao">Localização</label>
+            <select id="localizacao">
+              <option value="">Localização</option>
+              <option>Sem Localização</option>
+              <option>Ilha 1 - R4B2229805</option>
+              <option>Ilha 2 - WD44336210</option>
+              <option>Ilha 3 - R4B1395508</option>
+              <option>Ilha 4 - R4B1293179</option>
+              <option>Ilha 5 - R4B1293180</option>
+              <option>Balcão 1 - R4B1293183</option>
+              <option>Balcão 2 - R4B1293184</option>
+              <option>Dep.Logistica - R4B2230012</option>
+              <option>Grandes.Encomendas - R4B1293173</option>
+              <option>Devoluções - R4B1395261</option>
+              <option>Escritório - RVP0ZZ03770</option>
+              <option>Ilha1-VRL - R4B1293169</option>
+              <option>Ilha2-VRL - R4B1293174</option>
+              <option>Ilha3-VRL - RVP0Z03715</option>
+            </select>
+          </div>
 
-<select id="localizacao">
-<option value="">Localização</option>
-<option>Sem Localização</option>
-<option>Ilha 1</option>
-<option>Ilha 2</option>
-</select>
+          <div class="form-group">
+            <label for="cor">Cor</label>
+            <select id="cor">
+              <option value="">Cor</option>
+              <option>Preto</option>
+              <option>Amarelo</option>
+              <option>Vermelho</option>
+              <option>Azul</option>
+            </select>
+          </div>
 
-<select id="cor">
-<option value="">Cor</option>
-<option>Preto</option>
-<option>Amarelo</option>
-<option>Vermelho</option>
-<option>Azul</option>
-</select>
+          <div class="form-group">
+            <label for="data">Data</label>
+            <input type="date" id="data">
+          </div>
+        </div>
 
-<input type="date" id="data">
+        <div class="actions-row">
+          <button class="primary-btn" onclick="disponivel()">Adicionar Toner</button>
+        </div>
+      </div>
+    </section>
 
-<button onclick="disponivel()">Adicionar Toner</button>
-</div>
+    <!-- STOCK -->
+    <section id="stockPage" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Stock</h1>
+          <p class="subtitle">Toners disponíveis</p>
+        </div>
+      </div>
 
-<h3>Stock</h3>
-<div id="listaStock"></div>
+      <div class="panel">
+        <input id="search" type="text" placeholder="Pesquisar localização..." oninput="filtrar()">
+        <div id="listaStock" class="cards-list"></div>
+      </div>
+    </section>
 
-<h3>Histórico</h3>
-<div id="listaHistorico"></div>
+    <!-- HISTÓRICO -->
+    <section id="historicoPage" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Histórico</h1>
+          <p class="subtitle">Toners usados</p>
+        </div>
+      </div>
 
-</div>
+      <div class="panel">
+        <div id="listaHistorico" class="cards-list"></div>
+      </div>
+    </section>
 
-<!-- COMPUTADORES (IGUAL AO TELEMÓVEL 🔥) -->
-<div id="computadores" style="display:none">
+    <!-- COMPUTADORES -->
+    <section id="computadores" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Instalação Computador</h1>
+          <p class="subtitle">Checklist igual à app mobile</p>
+        </div>
+      </div>
 
-<h1>Instalação Computador</h1>
+      <div class="panel">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nomePC">Nome do Computador</label>
+            <input id="nomePC" type="text" placeholder="Nome do Computador">
+          </div>
 
-<input id="nomePC" placeholder="Nome do Computador">
-<input type="date" id="dataPC">
+          <div class="form-group">
+            <label for="dataPC">Data</label>
+            <input type="date" id="dataPC">
+          </div>
+        </div>
 
-<div id="checklist"></div>
+        <div id="checklist" class="checklist-grid"></div>
 
-<button onclick="guardarPC()">Guardar</button>
+        <div class="actions-row">
+          <button class="primary-btn" onclick="guardarPC()">Guardar</button>
+        </div>
+      </div>
 
-<h3>Histórico</h3>
-<div id="listaPC"></div>
+      <div class="panel mt-20">
+        <h3>Histórico de Computadores</h3>
+        <div id="listaPC" class="cards-list"></div>
+      </div>
+    </section>
 
-</div>
+    <!-- CONFIG -->
+    <section id="config" class="page">
+      <div class="topbar">
+        <div>
+          <h1>Configurações</h1>
+          <p class="subtitle">Preferências da aplicação</p>
+        </div>
+      </div>
 
-<!-- CONFIG -->
-<div id="config" style="display:none">
-<h1>Configurações</h1>
-<label><input type="checkbox" id="darkSwitch"> Dark Mode</label>
-</div>
+      <div class="panel">
+        <label class="switch-row">
+          <input type="checkbox" id="darkSwitch">
+          <span>Dark Mode</span>
+        </label>
+      </div>
+    </section>
+  </main>
 
-</div>
-
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
