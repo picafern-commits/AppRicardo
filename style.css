@@ -25,14 +25,18 @@ body.dark {
   --sidebar-hover: #1e293b;
   --card: #111827;
   --border: #334155;
-  --text: #e5e7eb;
-  --muted: #94a3b8;
+  --text: #f1f5f9;
+  --muted: #cbd5e1;
   --primary: #3b82f6;
   --primary-hover: #2563eb;
+  --danger: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
   --shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -45,8 +49,26 @@ html, body {
 body {
   display: flex;
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
 }
 
+/* TEXTO GLOBAL */
+h1, h2, h3, h4, h5, h6,
+p, span, label,
+td, th, a, div {
+  color: var(--text);
+}
+
+.subtitle,
+.stock-meta,
+.history-meta,
+.pc-meta,
+.brand p {
+  color: var(--muted);
+}
+
+/* SIDEBAR */
 .sidebar {
   width: 260px;
   min-height: 100vh;
@@ -62,11 +84,11 @@ body {
 .brand h2 {
   margin: 0;
   font-size: 24px;
+  color: white;
 }
 
 .brand p {
   margin: 8px 0 24px;
-  color: #cbd5e1;
   font-size: 14px;
 }
 
@@ -93,6 +115,7 @@ body {
 .menu-btn:hover,
 .menu-btn.active {
   background: var(--sidebar-hover);
+  color: white;
 }
 
 .menu {
@@ -101,12 +124,14 @@ body {
   gap: 10px;
 }
 
+/* MAIN */
 .main {
   margin-left: 260px;
   width: calc(100% - 260px);
   padding: 28px;
   min-height: 100vh;
   background: var(--bg);
+  color: var(--text);
 }
 
 .page {
@@ -125,13 +150,14 @@ body {
 .main h1 {
   margin: 0 0 8px;
   font-size: 30px;
+  color: var(--text);
 }
 
 .subtitle {
   margin: 0;
-  color: var(--muted);
 }
 
+/* CARDS E PAINÉIS */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(180px, 1fr));
@@ -152,6 +178,7 @@ body {
   border-radius: 18px;
   box-shadow: var(--shadow);
   padding: 20px;
+  color: var(--text);
 }
 
 .stat-card span {
@@ -163,12 +190,14 @@ body {
 
 .stat-card strong {
   font-size: 34px;
+  color: var(--text);
 }
 
 .mt-20 {
   margin-top: 20px;
 }
 
+/* FORMULÁRIOS */
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(220px, 1fr));
@@ -183,11 +212,13 @@ body {
 .form-group label {
   margin-bottom: 8px;
   font-weight: bold;
+  color: var(--text);
 }
 
 input,
 select,
-button {
+button,
+textarea {
   font: inherit;
 }
 
@@ -195,25 +226,27 @@ input[type="text"],
 input[type="date"],
 input[type="number"],
 select,
-.primary-btn,
-button {
+textarea {
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
   border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
 }
 
-input[type="text"],
-input[type="date"],
-input[type="number"],
-select {
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
 }
 
 button,
 .primary-btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 12px;
   border: none;
   background: var(--primary);
   color: white;
@@ -225,12 +258,14 @@ button,
 button:hover,
 .primary-btn:hover {
   background: var(--primary-hover);
+  color: white;
 }
 
 .actions-row {
   margin-top: 18px;
 }
 
+/* LISTAS */
 .cards-list {
   margin-top: 16px;
   display: grid;
@@ -251,13 +286,13 @@ button:hover,
 .pc-name {
   font-weight: bold;
   font-size: 16px;
+  color: var(--text);
 }
 
 .stock-meta,
 .history-meta,
 .pc-meta {
   margin-top: 8px;
-  color: var(--muted);
   line-height: 1.5;
 }
 
@@ -288,6 +323,7 @@ button:hover,
   color: #991b1b;
 }
 
+/* CHECKLIST */
 .checklist-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(240px, 1fr));
@@ -304,6 +340,7 @@ button:hover,
   border-radius: 14px;
   padding: 14px;
   cursor: pointer;
+  color: var(--text);
 }
 
 .checkItem input {
@@ -314,6 +351,7 @@ button:hover,
 
 .checkItem span {
   flex: 1;
+  color: var(--text);
 }
 
 .checkItem input:checked + span {
@@ -321,10 +359,12 @@ button:hover,
   font-weight: bold;
 }
 
+/* SWITCH */
 .switch-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  color: var(--text);
 }
 
 .switch-row input {
@@ -332,17 +372,23 @@ button:hover,
   height: 20px;
 }
 
+/* TABELAS */
 table {
   width: 100%;
   border-collapse: collapse;
   background: var(--card);
 }
 
-th, td {
+th,
+td {
   padding: 12px;
   border: 1px solid var(--border);
   text-align: left;
   color: var(--text);
+}
+
+th {
+  background: var(--card);
 }
 
 /* TOAST */
@@ -367,6 +413,7 @@ th, td {
   background: #dc2626;
 }
 
+/* RESPONSIVO */
 @media (max-width: 980px) {
   body {
     display: block;
